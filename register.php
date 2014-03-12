@@ -5,7 +5,7 @@
 		private $jsonReturnArray = null;
 		public function __construct()
 		{
-			doRegister();
+			$this->doRegister();
 		}
 		private function createConnection()
 		{
@@ -14,11 +14,11 @@
 			$pass = 'v3#D4g7';
 			try
 			{
-				$dbConnection = new PDO($connString, $uname, $pass);
+				$this->dbConnection = new PDO($connString, $uname, $pass);
 			}
 			catch (PDOException $e)
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Failed to connect to database.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Failed to connect to database.');
 				return false;
 			}
 			return true;
@@ -27,7 +27,7 @@
 		{
 			if (!isset($_POST["register"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'No data submitted.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'No data submitted.');
 			}
 			if (!empty ($_POST["uname"]) &&
 				strlen($_POST["uname"]) <= 64 &&
@@ -45,51 +45,51 @@
 			{return true;}
 			elseif (empty($_POST["uname"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Username not provided.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Username not provided.');
 			}
 			elseif (empty($_POST["email"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'E-mail not provided.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'E-mail not provided.');
 			}
 			elseif (empty($_POST["newpass"]) || empty($_POST["repeatpass"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Password not provided.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Password not provided.');
 			}
 			elseif (empty($_POST["btcaddr"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'PMC address not provided.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'PMC address not provided.');
 			}
 			elseif ($_POST["newpass"] !== $_POST["repeatpass"])
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Passwords do not match.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Passwords do not match.');
 			}
 			elseif (strlen($_POST["uname"]) > 64 || strlen($_POST["uname"]) < 2)
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Username cannot be longer than 64 or shorter than 2 characters.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Username cannot be longer than 64 or shorter than 2 characters.');
 			}
 			elseif (strlen($_POST["email"]) > 96)
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Mail address cannot be longer than 96 characters.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Mail address cannot be longer than 96 characters.');
 			}
-			elseif (strlen($_POST["btcaddr"]) > 34))
+			elseif (strlen($_POST["btcaddr"]) > 34)
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'PMC address contains too many characters.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'PMC address contains too many characters.');
 			}
 			elseif(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Mail address is not valid.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Mail address is not valid.');
 			}
 			elseif (!preg_match('/^[a-z\d]{2,64}$/i', $_POST["uname"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'Username contains invalid characters.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'Username contains invalid characters.');
 			}
 			elseif (!preg_match('/^[a-z\d]{2,64}$/i', $_POST["btcaddr"]))
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'PMC address contains invalid characters.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'PMC address contains invalid characters.');
 			}
 			else
 			{
-				$jsonReturnArray = array('success' => false, 'feedback' => 'An unknown error occured.');
+				$this->jsonReturnArray = array('success' => false, 'feedback' => 'An unknown error occured.');
 			}
 			return false;
 		}
@@ -101,7 +101,7 @@
 			$password = $_POST["newpass"];
 			$salt = bin2hex(openssl_random_pseudo_bytes(16));
 			$pwdhash = password_hash($password.$salt, PASSWORD_DEFAULT);
-			$selectStatement = $dbConnection->prepare('SELECT COUNT(*) AS cnt FROM users WHERE username = ? OR email = ?');
+			$selectStatement = $this->dbConnection->prepare('SELECT COUNT(*) AS cnt FROM users WHERE username = ? OR email = ?');
 			$ssRetVal = $selectStatement->execute(array($username, $email));
 			if (!ssRetVal)
 			{
@@ -119,7 +119,7 @@
 				$jsonReturnArray = array('success' => false, 'feedback' => 'This username/email is already taken.');
 				return false;
 			}
-			$statement = $dbConnection->prepare('INSERT INTO users(username, email, btcaddress, passwordhash, salt) values(?, ?, ?, ?, ?)');
+			$statement = $this->dbConnection->prepare('INSERT INTO users(username, email, btcaddress, passwordhash, salt) values(?, ?, ?, ?, ?)');
 			$rtrn = $statement->execute(array($username, $email, $btcaddr, $pwdhash, $salt));
 			if (!$rtrn)
 			{
@@ -131,17 +131,17 @@
 		}
 		public function doRegister()
 		{
-			if (createConnection())
+			if ($this->createConnection())
 			{
-				if (checkRegistrationData())
+				if ($this->checkRegistrationData())
 				{
-					if (createUser())
+					if ($this->createUser())
 					{
-						$jsonReturnArray = array('success' => true, 'feedback' => 'Registration completed successfully.');
+						$this->jsonReturnArray = array('success' => true, 'feedback' => 'Registration completed successfully.');
 					}
 				}
 			}
-			echo json_encode($jsonReturnArray);
+			echo json_encode($this->jsonReturnArray);
 		}
 	}
 	$rmgr = new RegistrationManager();
