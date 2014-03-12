@@ -36,8 +36,8 @@
 				!empty($_POST["email"]) &&
 				strlen($_POST["email"]) <= 96 &&
 				filter_var($_POST["email"], FILTER_VALIDATE_EMAIL) &&
-				!empty($_POST["newpass"]); &&
-				!empty($_POST["repeatpass"]); &&
+				!empty($_POST["newpass"]) &&
+				!empty($_POST["repeatpass"]) &&
 				($_POST["newpass"] === $_POST["repeatpass"]) &&
 				!empty($_POST["btcaddr"]) &&
 				preg_match('/^[a-z\d]{2,64}$/i', $_POST["btcaddr"]) &&
